@@ -52,58 +52,57 @@ const App = () => {
         console.error(error)
       }
     }
-    fetchData()
+    if(state && country){
+      fetchData()
+    }
   } , [state , country])
 
   return (
     <section className=' container'>
       <h1 className=' mt-5 font-medium text-[2rem] text-center mb-5' >Select Location</h1>
-      <div className='grid grid-cols-3 m-auto'>
-      <Select onValueChange={(e) => setCountry(e)} defaultValue={country}>
-        <SelectTrigger className="w-[90%] m-auto">
-          <SelectValue placeholder="Select Country" />
-        </SelectTrigger>
-        <SelectContent>
-          {countryList.length != 0 ? (
-            countryList.map((ele) => (
-              <SelectItem key={ele} value={ele}>{ele}</SelectItem>
-            ))
-          ) : (
-            <h1>Loading..</h1>
-          )}
-        </SelectContent>
-      </Select>
+      <div className='grid grid-cols-3 m-auto gap-5'>
+        <div className='border'>
+          <select
+            value = {country}
+            onChange={(e) => setCountry(e.target.value)}
+            className='w-full'
+          >
+            <option value="" disabled = {!country}> Select Country</option>
+            {countryList.map((ele) => (
+              <option key={ele} value={ele} >{ele}</option>
+            ))}
+          </select>
+        </div>
 
-      <Select onValueChange={(e) => setState(e)} defaultValue={state}>
-        <SelectTrigger className="w-[90%] m-auto">
-          <SelectValue placeholder="Select State" />
-        </SelectTrigger>
-        <SelectContent>
-          {stateList.length != 0 ? (
-            stateList.map((ele) => (
-              <SelectItem key={ele} value={ele}>{ele}</SelectItem>
-            ))
-          ) : (
-            <h1>Loading..</h1>
-          )}
-        </SelectContent>
-      </Select>
+        <div className=' border'>
+          <select
+            value = {state}
+            onChange={(e) => setState(e.target.value)}
+            className='w-full'
+          >
+            <option value="" disabled = {!state}> Select State</option>
+            {stateList.map((ele) => (
+              <option key={ele} value={ele} >{ele}</option>
+            ))}
+          </select>
+        </div>
 
-      <Select onValueChange={(e) => setCity(e)} defaultValue={city}>
-        <SelectTrigger className="w-[90%] m-auto">
-          <SelectValue placeholder="Select City" />
-        </SelectTrigger>
-        <SelectContent>
-          {cityList.length != 0 ? (
-            cityList.map((ele) => (
-              <SelectItem key={ele} value={ele}>{ele}</SelectItem>
-            ))
-          ) : (
-            <h1>Loading..</h1>
-          )}
-        </SelectContent>
-      </Select>
+
+
+        <div className='border'>
+          <select
+            value = {city}
+            onChange={(e) => setCity(e.target.value)}
+            className='w-full'
+          >
+            <option value="" disabled>Select City</option>
+            {cityList.map((ele) => (
+              <option key={ele} value={ele} >{ele}</option>
+            ))}
+          </select>
+        </div>
       </div>
+      
       <div className=' text-center mt-5 text-[1.5rem] font-medium'>
         <p className={city == '' && "hidden" }>You Selected {city}, 
           {" "}<span className=' text-stone-500'>{state}</span>, 
