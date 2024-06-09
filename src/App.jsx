@@ -1,116 +1,107 @@
-import React, { useEffect, useState } from 'react'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
-import axios from 'axios'
+import { useEffect, useState } from 'react'
 
+function App() {
+  const [countries, setCountries] = useState([])
+  const [states, setStates] = useState([])
+  const [cities, setCities] = useState([]);
+  const [selectedCountry, setSelectedCountry] = useState("");
+  const [selectedState, setSelectedState] = useState("");
+  const [selectedCity, setSelectedCity] = useState("");
 
-const App = () => {
-  const [countryList , setCountryList] = useState([])
-  const [country , setCountry] = useState('')
+  const getCountry = async() => {
+    try {
+      const data = await fetch("https://crio-location-selector.onrender.com/countries");
+      const dataJson = await data.json();
+      setCountries(dataJson);
+    } catch (err) {
+      console.error("Error fetching countries: ", err);
+    }
+  }
 
-  const [stateList , setStateList] = useState([])
-  const [state , setState] = useState('')
+  const getState = async() => {
+    try {
+        const data = await fetch(`https://crio-location-selector.onrender.com/country=${selectedCountry}/states`);
+        const dataJson = await data.json();
+        setStates(dataJson);
+    } catch (err) {
+      console.error("Error fetching state: ", err)
+    }
+  }
 
-  const [cityList , setCityList] = useState([])
-  const [city , setCity] = useState('')
+  const getCity = async() => {
+    try {
+      const data = await fetch(`https://crio-location-selector.onrender.com/country=${selectedCountry}/state=${selectedState}/cities`);
+      const dataJson =  await data.json();
+      setCities(dataJson);    
+    } catch (err) {
+      console.error("Error fetching city: ", err)
+    }
+  }
+  useEffect(() => {
+    getCountry()
+  }, [countries])
 
   useEffect(() => {
-      const fetchData = async () => {
-        try {
-          const res = await axios.get('https://crio-location-selector.onrender.com/countries')
-          setCountryList(res.data)
-        } catch (error) {
-          console.error(error)
-        }
-      }
-      fetchData()
-  } , [])
+    if(selectedCountry){ 
+      getState()
+    }
+  }, [selectedCountry]);
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const res = await axios.get(`https://crio-location-selector.onrender.com/country=${country}/states`)
-        setStateList(res.data)
-      } catch (error) {
-        console.error(error)
-      }
+    if(selectedCountry && selectedState){
+      getCity()
     }
-    fetchData()
-  } , [country])
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const res = await axios.get(`https://crio-location-selector.onrender.com/country=${country}/state=${state}/cities`)
-        setCityList(res.data)
-      } catch (error) {
-        console.error(error)
-      }
-    }
-    if(state && country){
-      fetchData()
-    }
-  } , [state , country])
+  }, [selectedState])
 
   return (
-    <section className=' container'>
-      <h1 className=' mt-5 font-medium text-[2rem] text-center mb-5' >Select Location</h1>
-      <div className='grid grid-cols-3 m-auto gap-5'>
-        <div className='border'>
-          <select
-            value = {country}
-            onChange={(e) => setCountry(e.target.value)}
-            className='w-full'
-          >
-            <option value="" disabled = {!country}> Select Country</option>
-            {countryList.map((ele) => (
-              <option key={ele} value={ele} >{ele}</option>
-            ))}
-          </select>
-        </div>
-
-        <div className=' border'>
-          <select
-            value = {state}
-            onChange={(e) => setState(e.target.value)}
-            className='w-full'
-          >
-            <option value="" disabled = {!state}> Select State</option>
-            {stateList.map((ele) => (
-              <option key={ele} value={ele} >{ele}</option>
-            ))}
-          </select>
-        </div>
-
-
-
-        <div className='border'>
-          <select
-            value = {city}
-            onChange={(e) => setCity(e.target.value)}
-            className='w-full'
-          >
-            <option value="" disabled>Select City</option>
-            {cityList.map((ele) => (
-              <option key={ele} value={ele} >{ele}</option>
-            ))}
-          </select>
-        </div>
-      </div>
+    <>
+      <div className=' container'>
+          <h1 className=' mt-5 text-center mb-4 text-[1.5rem] font-medium'>Select Location</h1>
+          <div className='grid grid-cols-3 gap-2'>
+            <select 
+              value={selectedCountry}
+              onChange={(e) => setSelectedCountry(e.target.value)}
+              className='border-[.1rem] border-stone-800 py-2 px-3 rounded-md'
+            >
+              <option value="" disabled>Select Country</option>
+              {countries.map((country) => <option key={country} value={country}>
+              {country}
+              </option>)}
+            </select>
+            
+            <select 
+              value={selectedState}
+              onChange={(e) => setSelectedState(e.target.value)}
+              className='border-[.1rem] border-stone-800 py-2 px-3 rounded-md'
+              disabled={!selectedCountry}
+            >
+              <option value="" >Select State</option>
+              {states.map((state) => <option key={state} value={state}>
+              {state}
+              </option>)}
+            </select>
       
-      <div className=' text-center mt-5 text-[1.5rem] font-medium'>
-        <p className={city == '' && "hidden" }>You Selected {city}, 
-          {" "}<span className=' text-stone-500'>{state}</span>, 
-          {" "}<span className=' text-stone-500'>{country}</span>
-        </p>
+            <select 
+              value={selectedCity}
+              onChange={(e) => setSelectedCity(e.target.value)}
+              className='border-[.1rem] border-stone-800 py-2 px-3 rounded-md'
+              disabled={!selectedState}
+            >
+              <option value="" >Select City</option>
+              {cities.map((city) => <option key={city} value={city}>
+              {city}
+              </option>)}
+            </select>
+          </div>
+          {selectedCity && 
+            <h2 className='text-center mt-3'>
+              You selected <span className=' font-medium'>{selectedCity}</span>,
+              <span className='text-stone-500 font-medium'>{" "}{selectedState}, {selectedCountry}
+              </span>
+            </h2>}
       </div>
-    </section>
+    </>
   )
 }
-
+ 
 export default App
